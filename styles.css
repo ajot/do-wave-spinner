@@ -126,24 +126,26 @@ body {
     background: var(--white);
     border-radius: 50%;
     box-shadow: var(--shadow-xl);
-    padding: 1.5rem;
+    padding: 0.75rem;
 }
 
 #wheelCanvas {
     border-radius: 50%;
     transition: var(--transition);
+    width: 500px;
+    height: 500px;
 }
 
 .wheel-pointer {
     position: absolute;
-    top: 5px;
+    top: 2px;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-top: 25px solid var(--do-blue);
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
+    border-top: 30px solid var(--do-blue);
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     z-index: 10;
 }
@@ -725,8 +727,8 @@ body {
     }
     
     #wheelCanvas {
-        width: 350px !important;
-        height: 350px !important;
+        width: 380px !important;
+        height: 380px !important;
     }
     
     .spin-btn {
@@ -757,8 +759,8 @@ body {
     }
     
     #wheelCanvas {
-        width: 600px !important;
-        height: 600px !important;
+        width: 650px !important;
+        height: 650px !important;
     }
     
     .spin-btn {

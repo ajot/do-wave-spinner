@@ -2,6 +2,10 @@ class DigitalOceanWinnerWheel {
     constructor() {
         this.canvas = document.getElementById('wheelCanvas');
         this.ctx = this.canvas.getContext('2d');
+        
+        // High DPI canvas setup for crisp rendering
+        this.setupHighDPICanvas();
+        
         this.participants = [];
         this.isSpinning = false;
         this.currentAngle = 0;
@@ -37,6 +41,31 @@ class DigitalOceanWinnerWheel {
         this.bindEvents();
         this.initializeSoundDropdown();
         this.drawWheel();
+    }
+    
+    setupHighDPICanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = this.canvas.getBoundingClientRect();
+        
+        // Set actual canvas size in memory (scaled up for high DPI)
+        this.canvas.width = rect.width * dpr;
+        this.canvas.height = rect.height * dpr;
+        
+        // Scale the canvas back down using CSS
+        this.canvas.style.width = rect.width + 'px';
+        this.canvas.style.height = rect.height + 'px';
+        
+        // Scale the drawing context so everything draws at the correct size
+        this.ctx.scale(dpr, dpr);
+        
+        // Enable image smoothing for better text rendering
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
+        this.ctx.textRenderingOptimization = 'optimizeQuality';
+        
+        // Store display dimensions for calculations
+        this.displayWidth = rect.width;
+        this.displayHeight = rect.height;
     }
     
     initAudio() {
@@ -459,12 +488,12 @@ class DigitalOceanWinnerWheel {
     }
     
     drawWheel() {
-        const centerX = this.canvas.width / 2;
-        const centerY = this.canvas.height / 2;
-        const radius = Math.min(centerX, centerY) - 10;
+        const centerX = this.displayWidth / 2;
+        const centerY = this.displayHeight / 2;
+        const radius = Math.min(centerX, centerY) - 5; // Reduced margin for less whitespace
         
         // Clear canvas
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.clearRect(0, 0, this.displayWidth, this.displayHeight);
         
         if (this.participants.length === 0) {
             // Draw empty wheel
@@ -530,11 +559,11 @@ class DigitalOceanWinnerWheel {
         
         // Draw placeholder text
         this.ctx.fillStyle = '#64748B';
-        this.ctx.font = 'bold 24px Inter';
+        this.ctx.font = 'bold 24px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         this.ctx.fillText('Add participants', centerX, centerY - 10);
-        this.ctx.font = '18px Inter';
+        this.ctx.font = '18px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
         this.ctx.fillText('to start spinning!', centerX, centerY + 20);
         
         // Draw center circle
@@ -556,14 +585,15 @@ class DigitalOceanWinnerWheel {
         this.ctx.translate(textX, textY);
         this.ctx.rotate(midAngle + (midAngle > Math.PI / 2 && midAngle < 3 * Math.PI / 2 ? Math.PI : 0));
         
+        // Enhanced text rendering settings
         this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-        this.ctx.lineWidth = 2;
-        this.ctx.font = 'bold 16px Inter';
+        this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+        this.ctx.lineWidth = 3;
+        this.ctx.font = 'bold 18px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         
-        // Add text shadow for better readability
+        // Improved text rendering with better shadow
         this.ctx.strokeText(text, 0, 0);
         this.ctx.fillText(text, 0, 0);
         
