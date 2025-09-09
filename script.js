@@ -71,8 +71,26 @@ class DigitalOceanWinnerWheel {
     initAudio() {
         try {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Handle autoplay policy - ensure audio context is resumed on first user interaction
+            if (this.audioContext.state === 'suspended') {
+                const resumeAudio = () => {
+                    this.audioContext.resume().then(() => {
+                        console.log('Audio context resumed');
+                    });
+                    // Remove listeners after first interaction
+                    document.removeEventListener('click', resumeAudio);
+                    document.removeEventListener('touchstart', resumeAudio);
+                    document.removeEventListener('keydown', resumeAudio);
+                };
+                
+                document.addEventListener('click', resumeAudio);
+                document.addEventListener('touchstart', resumeAudio);
+                document.addEventListener('keydown', resumeAudio);
+            }
         } catch (e) {
-            console.log('Web Audio API not supported');
+            console.log('Web Audio API not supported:', e);
+            this.audioContext = null;
         }
     }
     
@@ -87,6 +105,19 @@ class DigitalOceanWinnerWheel {
     playSpinSound() {
         if (!this.audioContext || !this.soundEnabled || this.soundTheme === 'none') return;
         
+        // Ensure audio context is running (Safari fix)
+        if (this.audioContext.state === 'suspended') {
+            this.audioContext.resume().then(() => {
+                this.executeSpinSound();
+            }).catch(err => {
+                console.log('Audio context resume failed:', err);
+            });
+        } else {
+            this.executeSpinSound();
+        }
+    }
+    
+    executeSpinSound() {
         switch (this.soundTheme) {
             case 'modern':
                 this.playModernSpinSound();
@@ -228,7 +259,11 @@ class DigitalOceanWinnerWheel {
     
     resumeAudioContext() {
         if (this.audioContext && this.audioContext.state === 'suspended') {
-            this.audioContext.resume();
+            this.audioContext.resume().then(() => {
+                console.log('Audio context resumed successfully');
+            }).catch((err) => {
+                console.log('Failed to resume audio context:', err);
+            });
         }
     }
     
@@ -238,6 +273,19 @@ class DigitalOceanWinnerWheel {
         // Stop any ongoing clicking sounds
         this.stopClassicWheelSound();
         
+        // Ensure audio context is running (Safari fix)
+        if (this.audioContext.state === 'suspended') {
+            this.audioContext.resume().then(() => {
+                this.executeWinnerSound();
+            }).catch(err => {
+                console.log('Audio context resume failed for winner sound:', err);
+            });
+        } else {
+            this.executeWinnerSound();
+        }
+    }
+    
+    executeWinnerSound() {
         switch (this.soundTheme) {
             case 'modern':
             case 'classic':
