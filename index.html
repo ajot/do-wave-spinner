@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigitalOcean Winner Wheel - Conference Edition</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="logo-container">
+                <img src="DO_Logo_Horizontal_Blue.png" alt="DigitalOcean" class="do-logo">
+                <span class="app-title">Winner Wheel</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="wheel-section">
+                <div class="wheel-container">
+                    <canvas id="wheelCanvas" width="400" height="400"></canvas>
+                    <div class="wheel-pointer"></div>
+                </div>
+                <div class="wheel-controls">
+                    <button id="spinButton" class="spin-btn">
+                        <svg class="spin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 11-.57-8.38"/>
+                        </svg>
+                        SPIN THE WHEEL
+                    </button>
+                    <div class="wheel-stats">
+                        <span id="participantCount">0</span> participants
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="input-panel">
+                    <h2>Add Participants</h2>
+                    <div class="input-group">
+                        <textarea 
+                            id="participantInput" 
+                            placeholder="Paste names here (one per line or comma-separated)&#10;&#10;Example:&#10;Alice Johnson&#10;Bob Smith&#10;Carol Davis&#10;David Wilson"
+                            rows="8"
+                        ></textarea>
+                        <div class="input-actions">
+                            <button id="addNamesBtn" class="btn btn-primary">Add Names</button>
+                            <button id="clearAllBtn" class="btn btn-secondary">Clear All</button>
+                            <button id="shuffleBtn" class="btn btn-secondary">Shuffle</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="participant-list">
+                    <h3>Current Participants</h3>
+                    <div id="participantsList" class="participants-container">
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                            <p>Add participants to get started</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Winner Modal -->
+    <div id="winnerModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="winner-announcement">
+                <div class="celebration-icon">🎉</div>
+                <h2>Congratulations!</h2>
+                <div id="winnerName" class="winner-name"></div>
+                <div class="modal-actions">
+                    <button id="removeWinnerBtn" class="btn btn-primary">Remove & Spin Again</button>
+                    <button id="keepWinnerBtn" class="btn btn-secondary">Keep & Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control Buttons -->
+    <button id="fullscreenBtn" class="control-btn fullscreen-btn" title="Toggle Fullscreen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+        </svg>
+    </button>
+    
+    <div class="sound-dropdown-container">
+        <button id="soundBtn" class="control-btn sound-btn" title="Sound Options">
+            <svg id="soundOnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/>
+            </svg>
+            <svg id="soundOffIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="display: none;">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <line x1="23" y1="9" x2="17" y2="15"/>
+                <line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+        </button>
+        
+        <div id="soundDropdown" class="sound-dropdown">
+            <div class="sound-dropdown-header">Sound Options</div>
+            
+            <div class="sound-option" data-theme="modern">
+                <div class="sound-option-icon">🌪️</div>
+                <div class="sound-option-text">
+                    <div class="sound-option-title">Modern Whoosh</div>
+                    <div class="sound-option-desc">Smooth spinning sound</div>
+                </div>
+                <div class="sound-option-check" id="check-modern">✓</div>
+            </div>
+            
+            <div class="sound-option" data-theme="classic">
+                <div class="sound-option-icon">🎪</div>
+                <div class="sound-option-text">
+                    <div class="sound-option-title">Classic Wheel</div>
+                    <div class="sound-option-desc">Wheel of Fortune clicks</div>
+                </div>
+                <div class="sound-option-check" id="check-classic">✓</div>
+            </div>
+            
+            <div class="sound-option" data-theme="arcade">
+                <div class="sound-option-icon">🕹️</div>
+                <div class="sound-option-text">
+                    <div class="sound-option-title">Arcade Style</div>
+                    <div class="sound-option-desc">Fun gaming sounds</div>
+                </div>
+                <div class="sound-option-check" id="check-arcade">✓</div>
+            </div>
+            
+            <div class="sound-option" data-theme="minimal">
+                <div class="sound-option-icon">🔔</div>
+                <div class="sound-option-text">
+                    <div class="sound-option-title">Minimal Beeps</div>
+                    <div class="sound-option-desc">Simple tones only</div>
+                </div>
+                <div class="sound-option-check" id="check-minimal">✓</div>
+            </div>
+            
+            <div class="sound-dropdown-divider"></div>
+            
+            <div class="sound-option" data-theme="none">
+                <div class="sound-option-icon">🔇</div>
+                <div class="sound-option-text">
+                    <div class="sound-option-title">No Sound</div>
+                    <div class="sound-option-desc">Silent mode</div>
+                </div>
+                <div class="sound-option-check" id="check-none">✓</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
